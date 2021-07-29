@@ -27,6 +27,9 @@ import (
 	"go.uber.org/zap"
 )
 
+/**
+ 内建的数据集，
+**/
 type DatasetFormat int
 
 const (
@@ -36,6 +39,7 @@ const (
 )
 
 // Built-in Data set
+// 内建的数据集
 type _BuiltInDataSet struct {
 	downloadURL string
 	trainFile   string
@@ -96,6 +100,7 @@ func init() {
 	}
 }
 
+//
 func LocateBuiltInDataset(name string, format DatasetFormat) (string, string, error) {
 	// Extract Data set information
 	dataSet, exist := builtInDataSets[name]

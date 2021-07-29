@@ -24,7 +24,9 @@ import (
 	"github.com/zhenghaoz/gorse/model"
 )
 
-/* Evaluate Item Ranking */
+/* Evaluate Item Ranking
+   评估项目排名
+*/
 
 // Metric is used by evaluators in personalized ranking tasks.
 type Metric func(targetSet *iset.Set, rankList []int) float32

@@ -30,6 +30,8 @@ type Model interface {
 
 // BaseModel model must be included by every recommendation model. Hyper-parameters,
 // ID sets, random generator and fitting options are managed the BaseModel model.
+// 每个推荐模型必须包含baseModel模型。
+// Hyper-parameters、ID集,随机生成器和选项适配由basemodel管理。
 type BaseModel struct {
 	Params    Params               // Hyper-parameters
 	rng       base.RandomGenerator // Random generator

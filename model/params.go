@@ -24,6 +24,7 @@ import (
 /* ParamName */
 
 // ParamName is the type of hyper-parameter names.
+// 超参数是在开始学习过程之前设置值的参数，而不是通过训练得到的参数数据。
 type ParamName string
 
 // Predefined hyper-parameter names
@@ -33,7 +34,7 @@ const (
 	NEpochs     ParamName = "NEpochs"     // number of epochs
 	NFactors    ParamName = "NFactors"    // number of factors
 	RandomState ParamName = "RandomState" // random state (seed)
-	InitMean    ParamName = "InitMean"    // mean of gaussian initial parameter
+	InitMean    ParamName = "InitMean"    // mean of gaussian initial parameter 均值高斯的初始参数
 	InitStdDev  ParamName = "InitStdDev"  // standard deviation of gaussian initial parameter
 	Alpha       ParamName = "Alpha"       // weight for negative samples in ALS
 	Similarity  ParamName = "Similarity"
