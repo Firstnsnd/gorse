@@ -43,6 +43,7 @@ import (
 )
 
 // Worker manages states of a worker node.
+//
 type Worker struct {
 	// worker config
 	cfg        *config.Config

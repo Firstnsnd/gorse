@@ -152,6 +152,7 @@ type ModelSearcher struct {
 }
 
 // NewModelSearcher creates a thread-safe personal ranking model searcher.
+// NewModelSearcher 创建一个线程安全的个人排名模型搜索器。
 func NewModelSearcher(nEpoch, nTrials, nJobs int) *ModelSearcher {
 	return &ModelSearcher{
 		numTrials:      nTrials,
@@ -162,6 +163,7 @@ func NewModelSearcher(nEpoch, nTrials, nJobs int) *ModelSearcher {
 }
 
 // GetBestModel returns the optimal personal ranking model.
+// GetBestModel 返回最佳个人排名模型。
 func (searcher *ModelSearcher) GetBestModel() (string, Model, Score) {
 	searcher.bestMutex.Lock()
 	defer searcher.bestMutex.Unlock()

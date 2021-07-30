@@ -119,6 +119,7 @@ var (
 
 	// Docker, starting from 0.7.x, generates names from notable scientists and hackers.
 	// Please, for any amazing man that you add to the list, consider adding an equally amazing woman to it, and vice versa.
+	// Docker 从 0.7.x 开始，从著名的科学家和黑客那里生成名字。请，对于您添加到列表中的任何出色的男人，请考虑添加一个同样出色的女人，反之亦
 	right = [...]string{
 		// Muhammad ibn Jābir al-Ḥarrānī al-Battānī was a founding father of astronomy. https://en.wikipedia.org/wiki/Mu%E1%B8%A5ammad_ibn_J%C4%81bir_al-%E1%B8%A4arr%C4%81n%C4%AB_al-Batt%C4%81n%C4%AB
 		"albattani",
@@ -838,6 +839,9 @@ var (
 // GetRandomName generates a random name from the list of adjectives and surnames in this package
 // formatted as "adjective_surname". For example 'focused_turing'. If retry is non-zero, a random
 // integer between 0 and 10 will be added to the end of the name, e.g `focused_turing3`
+// GetRandomName 从这个包中的形容词和姓氏列表中生成一个随机名称，格式为“adjective_surname”。
+// 例如'focused_turing'。如果重试不为零，则将在 0 到 10 之间的随机整数添加到名称的末尾，
+// 例如 `focused_turing3
 func GetRandomName(retry int) string {
 begin:
 	name := fmt.Sprintf("%s_%s", left[rand.Intn(len(left))], right[rand.Intn(len(right))])

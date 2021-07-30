@@ -18,11 +18,18 @@ import (
 	"sync"
 )
 
-/* Parallel Schedulers */
+/*
+Parallel Schedulers
+并行调度
+*/
 
 // Parallel schedules and runs tasks in parallel. nTask is the number of tasks. nJob is
 // the number of executors. worker is the executed function which passed a range of task
 // Names (begin, end).
+// Parallel 并行调度和运行任务。
+// nWorkers 是任务数。
+// nJob 是执行者的数量。
+// worker 是执行的函数，它传递了一系列任务名称（开始、结束）
 func Parallel(nJobs, nWorkers int, worker func(workerId, jobId int) error) error {
 	if nWorkers == 1 {
 		for i := 0; i < nJobs; i++ {
@@ -87,6 +94,7 @@ type batchJob struct {
 }
 
 // BatchParallel run parallel jobs in batches to reduce the cost of context switch.
+// BatchParallel 批量运行并行作业以降低上下文切换的成本。
 func BatchParallel(nJobs, nWorkers, batchSize int, worker func(workerId, beginJobId, endJobId int) error) error {
 	if nWorkers == 1 {
 		return worker(0, 0, nJobs)

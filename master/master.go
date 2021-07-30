@@ -29,7 +29,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ReneKroon/ttlcache/v2"
+	ttlcache "github.com/ReneKroon/ttlcache/v2"
 	"github.com/zhenghaoz/gorse/base"
 	"github.com/zhenghaoz/gorse/config"
 	"github.com/zhenghaoz/gorse/model/ranking"
@@ -254,7 +254,7 @@ func (m *Master) FitLoop() {
 			continue
 		}
 
-		// fit ranking model
+		// fit ranking model　拟合排名模型
 		lastNumRankingUsers, lastNumRankingItems, lastNumRankingFeedback, err =
 			m.fitRankingModelAndNonPersonalized(lastNumRankingUsers, lastNumRankingItems, lastNumRankingFeedback)
 		if err != nil {
@@ -328,6 +328,7 @@ func (m *Master) hasFeedbackInserted() bool {
 	return false
 }
 
+// 加载数据集
 func (m *Master) loadRankingDataset() error {
 	base.Logger().Info("load ranking dataset",
 		zap.Strings("positive_feedback_types", m.GorseConfig.Database.PositiveFeedbackType))
