@@ -25,7 +25,7 @@ import (
 )
 
 /* Evaluate Item Ranking
-   评估项目排名
+   评估排名模型
 */
 
 // Metric is used by evaluators in personalized ranking tasks.

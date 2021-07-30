@@ -175,12 +175,14 @@ func (searcher *ModelSearcher) GetBestSimilarity() string {
 	return searcher.bestSimilarity
 }
 
+// 拟合
 func (searcher *ModelSearcher) Fit(trainSet, valSet *DataSet) error {
 	base.Logger().Info("ranking model search",
 		zap.Int("n_users", trainSet.UserCount()),
 		zap.Int("n_items", trainSet.ItemCount()))
 	startTime := time.Now()
 	models := []string{"bpr", "ccd", "knn"}
+	// 遍历模型
 	for _, name := range models {
 		m, err := NewModel(name, model.Params{model.NEpochs: searcher.numEpochs})
 		if err != nil {

@@ -68,6 +68,7 @@ func (config *FitConfig) LoadDefaultIfNil() *FitConfig {
 type Model interface {
 	model.Model
 	// Fit a model with a train set and parameters.
+	// 适合与训练模型和参数设置。
 	Fit(trainSet *DataSet, validateSet *DataSet, config *FitConfig) Score
 	// GetItemIndex returns item index.
 	GetItemIndex() base.Index
@@ -144,6 +145,7 @@ func DecodeModel(name string, buf []byte) (Model, error) {
 	reader := bytes.NewReader(buf)
 	decoder := gob.NewDecoder(reader)
 	switch name {
+	/**排名模型**/
 	case "als":
 		var als ALS
 		if err := decoder.Decode(&als); err != nil {
@@ -162,6 +164,7 @@ func DecodeModel(name string, buf []byte) (Model, error) {
 			return nil, err
 		}
 		return &ccd, nil
+		/****/
 	case "knn":
 		var knn KNN
 		if err := decoder.Decode(&knn); err != nil {

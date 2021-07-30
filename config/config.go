@@ -46,9 +46,9 @@ type DatabaseConfig struct {
 	AutoInsertUser       bool     `toml:"auto_insert_user"`        // insert new users while inserting feedback
 	AutoInsertItem       bool     `toml:"auto_insert_item"`        // insert new items while inserting feedback
 	CacheSize            int      `toml:"cache_size"`              // cache size for recommended/popular/latest items
-	PositiveFeedbackType []string `toml:"positive_feedback_types"` // positive feedback type
-	ClickFeedbackTypes   []string `toml:"click_feedback_types"`    // feedback types for click event
-	ReadFeedbackType     string   `toml:"read_feedback_type"`      // feedback type for read event
+	PositiveFeedbackType []string `toml:"positive_feedback_types"` // positive feedback type 用户喜欢物品
+	ClickFeedbackTypes   []string `toml:"click_feedback_types"`    // feedback types for click event 用户喜欢推荐的项目
+	ReadFeedbackType     string   `toml:"read_feedback_type"`      // feedback type for read event 用户阅读了一个项目。然而,这个用户在他/她心中的真实反馈是永远未知的。
 	PositiveFeedbackTTL  uint     `toml:"positive_feedback_ttl"`   // time-to-live of positive feedbacks
 	ItemTTL              uint     `toml:"item_ttl"`                // item-to-live of items
 }
@@ -93,11 +93,12 @@ func (config *MasterConfig) LoadDefaultIfNil() *MasterConfig {
 }
 
 // RecommendConfig is the configuration of recommendation setup.
+// RecommendConfig是推荐的配置设置。
 type RecommendConfig struct {
-	PopularWindow          int    `toml:"popular_window"`
-	FitPeriod              int    `toml:"fit_period"`
-	SearchPeriod           int    `toml:"search_period"`
-	SearchEpoch            int    `toml:"search_epoch"`
+	PopularWindow          int    `toml:"popular_window"` // 限制热门物品必须在时间
+	FitPeriod              int    `toml:"fit_period"`     // 模型训练的间隔
+	SearchPeriod           int    `toml:"search_period"`  // 搜索的间隔
+	SearchEpoch            int    `toml:"search_epoch"`   //
 	SearchTrials           int    `toml:"search_trials"`
 	RefreshRecommendPeriod int    `toml:"refresh_recommend_period"`
 	FallbackRecommend      string `toml:"fallback_recommend"`

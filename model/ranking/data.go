@@ -31,11 +31,13 @@ import (
 const batchSize = 1000
 
 // DataSet contains preprocessed data structures for recommendation models.
+// 数据集包含预处理推荐模型的数据结构。
 type DataSet struct {
 	UserIndex     base.Index
 	ItemIndex     base.Index
 	FeedbackUsers []int
 	FeedbackItems []int
+	// 二维数组
 	UserFeedback  [][]int
 	ItemFeedback  [][]int
 	Negatives     [][]int
@@ -58,6 +60,7 @@ func NewMapIndexDataset() *DataSet {
 	return s
 }
 
+// DirectIndex意味着名称及其指标是相同的。
 func NewDirectIndexDataset() *DataSet {
 	dataset := new(DataSet)
 	// Create index
@@ -95,6 +98,7 @@ func (dataset *DataSet) AddFeedback(userId, itemId string, insertUserItem bool) 
 	if insertUserItem {
 		dataset.ItemIndex.Add(itemId)
 	}
+	// 获取密集缩影
 	userIndex := dataset.UserIndex.ToNumber(userId)
 	itemIndex := dataset.ItemIndex.ToNumber(itemId)
 	if userIndex != base.NotId && itemIndex != base.NotId {

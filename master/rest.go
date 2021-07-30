@@ -280,9 +280,10 @@ func (m *Master) getRecommend(request *restful.Request, response *restful.Respon
 	server.Ok(response, details)
 }
 
+// 反馈
 type Feedback struct {
-	FeedbackType string
-	UserId       string
+	FeedbackType string // 反馈类型:积极的（喜欢）、消极的（不喜欢）或中性的（阅读）
+	UserId       string // 用户
 	Item         data.Item
 	Timestamp    time.Time
 	Comment      string

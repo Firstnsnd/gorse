@@ -32,6 +32,7 @@ import (
 const batchSize = 1024
 
 // Dataset for click-through-rate models.
+// 来自用户或项目的特征用于预测。使用CTR模型来预测所有项目的分数。
 type Dataset struct {
 	Index  UnifiedIndex
 	Labels [][]int

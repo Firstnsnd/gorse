@@ -24,6 +24,7 @@ func init() {
 }
 
 // UnifiedIndex maps users, items and labels into a unified encoding space.
+// UnifiedIndex映射用户,项目和标签到一个统一的编码空间。
 type UnifiedIndex interface {
 	Len() int
 	EncodeUser(userId string) int

@@ -35,6 +35,9 @@ func init() {
 // MapIndex manages the map between sparse Names and dense indices. A sparse ID is
 // a user ID or item ID. The dense index is the internal user index or item index
 // optimized for faster parameter access and less memory usage.
+// map 索引管理sparse name和dense indices之间的映射.
+// sparse ID是user ID或 item ID。dense index 内部优化的用户索引或项索引，更快的参数访问和使用更少的内存
+// 双向索引映射
 type MapIndex struct {
 	Numbers map[string]int // sparse ID -> dense index
 	Names   []string       // dense index -> sparse ID
@@ -68,6 +71,7 @@ func (idx *MapIndex) Add(name string) {
 }
 
 // ToNumber converts a sparse ID to a dense index.
+// 将稀疏ID转换为密集索引
 func (idx *MapIndex) ToNumber(name string) int {
 	if denseId, exist := idx.Numbers[name]; exist {
 		return denseId
@@ -76,6 +80,7 @@ func (idx *MapIndex) ToNumber(name string) int {
 }
 
 // ToName converts a dense index to a sparse ID.
+// 密集索引转换为稀疏ID
 func (idx *MapIndex) ToName(index int) string {
 	return idx.Names[index]
 }
@@ -87,6 +92,8 @@ func (idx *MapIndex) GetNames() []string {
 
 // DirectIndex means that the name and its index is the same. For example,
 // the index of "1" is 1, vice versa.
+// DirectIndex意味着名称及其指标是相同的。
+// 例如,“1”的指数是1,反之亦然。
 type DirectIndex struct {
 	Limit int
 }
