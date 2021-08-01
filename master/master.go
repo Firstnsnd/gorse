@@ -39,6 +39,8 @@ import (
 )
 
 // Master is the master node.
+// 模型训练、非个性化物品推荐(流行/最新/类似)、配置管理、会员管理
+// 系统监控、数据导入导出和系统状态检查。
 type Master struct {
 	protocol.UnimplementedMasterServer
 	server.RestServer
@@ -215,6 +217,7 @@ func (m *Master) Serve() {
 	}
 }
 
+// 数据拟合
 func (m *Master) FitLoop() {
 	defer base.CheckPanic()
 	var (
@@ -274,6 +277,8 @@ func (m *Master) FitLoop() {
 
 // SearchLoop searches optimal recommendation model in background. It never modifies variables other than
 // rankingModelSearcher, clickSearchedModel and clickSearchedScore.
+// SearchLoop 在后台搜索最优推荐模型。
+// 除了rankingModelSearcher、clickSearchedModel和clickSearchedScore 之外，它从不修改变量。
 func (m *Master) SearchLoop() {
 	defer base.CheckPanic()
 	var (

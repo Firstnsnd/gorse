@@ -34,6 +34,7 @@ import (
 )
 
 // Server manages states of a server node.
+// RESTful API 和在线实时推荐
 type Server struct {
 	RestServer
 	cachePath    string

@@ -101,6 +101,7 @@ func GridSearchCV(estimator Model, trainSet *DataSet, testSet *DataSet, paramGri
 }
 
 // RandomSearchCV searches hyper-parameters by random.
+// RandomSearchCV 随机搜索超参数。
 func RandomSearchCV(estimator Model, trainSet *DataSet, testSet *DataSet, paramGrid model.ParamsGrid,
 	numTrials int, seed int64, fitConfig *FitConfig) ParamsSearchResult {
 	// if the number of combination is less than number of trials, use grid search
@@ -138,6 +139,7 @@ func RandomSearchCV(estimator Model, trainSet *DataSet, testSet *DataSet, paramG
 }
 
 // ModelSearcher is a thread-safe personal ranking model searcher.
+// ModelSearcher 是一个线程安全的个人排名模型搜索器。
 type ModelSearcher struct {
 	// arguments
 	numEpochs int

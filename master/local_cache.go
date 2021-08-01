@@ -26,6 +26,7 @@ import (
 )
 
 // LocalCache is local cache for the master node.
+// master缓存
 type LocalCache struct {
 	path                string
 	RankingModelName    string

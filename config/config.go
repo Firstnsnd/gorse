@@ -19,6 +19,7 @@ import (
 )
 
 // Config is the configuration for the engine.
+// 推荐引擎的配置
 type Config struct {
 	Database  DatabaseConfig  `toml:"database"`
 	Master    MasterConfig    `toml:"master"`
@@ -42,15 +43,15 @@ func (config *Config) LoadDefaultIfNil() *Config {
 // DatabaseConfig is the configuration for the database.
 type DatabaseConfig struct {
 	DataStore            string   `toml:"data_store"`              // database for data store
-	CacheStore           string   `toml:"cache_store"`             // database for cache store
-	AutoInsertUser       bool     `toml:"auto_insert_user"`        // insert new users while inserting feedback
-	AutoInsertItem       bool     `toml:"auto_insert_item"`        // insert new items while inserting feedback
-	CacheSize            int      `toml:"cache_size"`              // cache size for recommended/popular/latest items
+	CacheStore           string   `toml:"cache_store"`             // database for cache store　存储离线推荐建议和临时变量，缓存了最新项、热门项、相似项和推荐项列表
+	AutoInsertUser       bool     `toml:"auto_insert_user"`        // insert new users while inserting feedback　在插入反馈的同时插入新用户
+	AutoInsertItem       bool     `toml:"auto_insert_item"`        // insert new items while inserting feedback　在插入反馈的同时插入新物品
+	CacheSize            int      `toml:"cache_size"`              // cache size for recommended/popular/latest items　每个缓存列表的长度
 	PositiveFeedbackType []string `toml:"positive_feedback_types"` // positive feedback type 用户喜欢物品
 	ClickFeedbackTypes   []string `toml:"click_feedback_types"`    // feedback types for click event 用户喜欢推荐的项目
 	ReadFeedbackType     string   `toml:"read_feedback_type"`      // feedback type for read event 用户阅读了一个项目。然而,这个用户在他/她心中的真实反馈是永远未知的。
-	PositiveFeedbackTTL  uint     `toml:"positive_feedback_ttl"`   // time-to-live of positive feedbacks
-	ItemTTL              uint     `toml:"item_ttl"`                // item-to-live of items
+	PositiveFeedbackTTL  uint     `toml:"positive_feedback_ttl"`   // time-to-live of positive feedbacks　反馈的过期时间
+	ItemTTL              uint     `toml:"item_ttl"`                // item-to-live of items　物品的过期时间
 }
 
 // LoadDefaultIfNil loads default settings if config is nil.
@@ -100,9 +101,9 @@ type RecommendConfig struct {
 	SearchPeriod           int    `toml:"search_period"`  // 搜索的间隔
 	SearchEpoch            int    `toml:"search_epoch"`   //
 	SearchTrials           int    `toml:"search_trials"`
-	RefreshRecommendPeriod int    `toml:"refresh_recommend_period"`
-	FallbackRecommend      string `toml:"fallback_recommend"`
-	ExploreLatestNum       int    `toml:"explore_latest_num"`
+	RefreshRecommendPeriod int    `toml:"refresh_recommend_period"` // 线下推荐的过期时间
+	FallbackRecommend      string `toml:"fallback_recommend"` // 由此指定在线推荐兜底数据的来源，最新或热门,默认最新
+	ExploreLatestNum       int    `toml:"explore_latest_num"` // 线下推荐
 }
 
 // LoadDefaultIfNil loads default settings if config is nil.
@@ -115,7 +116,7 @@ func (config *RecommendConfig) LoadDefaultIfNil() *RecommendConfig {
 			SearchEpoch:            100,
 			SearchTrials:           10,
 			RefreshRecommendPeriod: 5,
-			FallbackRecommend:      "latest",
+			FallbackRecommend:      "latest", //
 			ExploreLatestNum:       10,
 		}
 	}

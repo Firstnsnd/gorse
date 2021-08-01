@@ -43,7 +43,9 @@ import (
 )
 
 // Worker manages states of a worker node.
-//
+// 离线推荐:所有项目中收集前 n 个项目并将它们保存到缓存中。
+// 添加了最新项目以解决推荐系统中的冷启动问题。当项目标签存在时，
+// CTR 预测模型被启用，反之亦然。离线推荐的过程取决于是否启用了CTR模型。
 type Worker struct {
 	// worker config
 	cfg        *config.Config
