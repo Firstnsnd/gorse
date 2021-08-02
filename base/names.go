@@ -839,6 +839,7 @@ var (
 // GetRandomName generates a random name from the list of adjectives and surnames in this package
 // formatted as "adjective_surname". For example 'focused_turing'. If retry is non-zero, a random
 // integer between 0 and 10 will be added to the end of the name, e.g `focused_turing3`
+// 为worker和server生成随机的名称
 // GetRandomName 从这个包中的形容词和姓氏列表中生成一个随机名称，格式为“adjective_surname”。
 // 例如'focused_turing'。如果重试不为零，则将在 0 到 10 之间的随机整数添加到名称的末尾，
 // 例如 `focused_turing3

@@ -27,6 +27,7 @@ type LocalCache struct {
 }
 
 // LoadLocalCache loads cache from a local file.
+//
 func LoadLocalCache(path string) (*LocalCache, error) {
 	state := &LocalCache{path: path}
 	// check if file exists
@@ -47,6 +48,7 @@ func LoadLocalCache(path string) (*LocalCache, error) {
 }
 
 // WriteLocalCache writes cache to a local file.
+// 将worker节点的名写入缓存
 func (c *LocalCache) WriteLocalCache() error {
 	// create parent folder if not exists
 	parent := filepath.Dir(c.path)

@@ -87,7 +87,7 @@ type Worker struct {
 
 	// events
 	ticker     *time.Ticker
-	syncedChan chan bool // meta synced events
+	syncedChan chan bool // meta synced events 同步信息，用户索引，排名模型
 	pulledChan chan bool // model pulled events
 }
 
@@ -118,6 +118,7 @@ func (w *Worker) Sync() {
 	for {
 		var meta *protocol.Meta
 		var err error
+		// master节点的信息
 		if meta, err = w.masterClient.GetMeta(context.Background(),
 			&protocol.NodeInfo{
 				NodeType: protocol.NodeType_WorkerNode,
@@ -128,14 +129,14 @@ func (w *Worker) Sync() {
 			goto sleep
 		}
 
-		// load master config
+		// load master config，加载配置
 		err = json.Unmarshal([]byte(meta.Config), &w.cfg)
 		if err != nil {
 			base.Logger().Error("failed to parse master config", zap.Error(err))
 			goto sleep
 		}
 
-		// connect to data store
+		// connect to data store，加载数据
 		if w.dataPath != w.cfg.Database.DataStore {
 			base.Logger().Info("connect data store", zap.String("database", w.cfg.Database.DataStore))
 			if w.dataClient, err = data.Open(w.cfg.Database.DataStore); err != nil {
@@ -145,7 +146,7 @@ func (w *Worker) Sync() {
 			w.dataPath = w.cfg.Database.DataStore
 		}
 
-		// connect to cache store
+		// connect to cache store，加载缓存
 		if w.cachePath != w.cfg.Database.CacheStore {
 			base.Logger().Info("connect cache store", zap.String("database", w.cfg.Database.CacheStore))
 			if w.cacheClient, err = cache.Open(w.cfg.Database.CacheStore); err != nil {
@@ -155,7 +156,7 @@ func (w *Worker) Sync() {
 			w.cachePath = w.cfg.Database.CacheStore
 		}
 
-		// check ranking model version
+		// check ranking model version,排名模型
 		w.latestRankingModelVersion = meta.RankingModelVersion
 		if w.latestRankingModelVersion != w.currentRankingModelVersion {
 			base.Logger().Info("new ranking model found",
@@ -193,6 +194,7 @@ func (w *Worker) Sync() {
 }
 
 // Pull user index and ranking model from master.
+// 从master拉取用户索引和排名模型
 func (w *Worker) Pull() {
 	defer base.CheckPanic()
 	for range w.syncedChan {
@@ -285,6 +287,10 @@ func (w *Worker) ServeMetrics() {
 }
 
 // Serve as a worker node.
+// 将服务信息写入缓存
+// 连接到master
+// 同步信息，拉取
+// 推荐
 func (w *Worker) Serve() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	// open local store
@@ -357,6 +363,15 @@ func (w *Worker) Serve() {
 // 6. Insert cold-start items into results.
 // 7. Rank items in results by click-through-rate.
 // 8. Refresh cache.
+// 向用户推荐商品。工作流的建议是:
+// 1。跳过不活跃的用户。
+// 2. 加载历史项目。
+// 3. 如果使用近邻算法加载积极的物品。
+// 4. 产生推荐。
+// 5. 保存结果。
+// 6. 预热将条目插入到结果。
+// 7. 通过点击通过率排名项目结果。
+// 8. 刷新缓存。
 func (w *Worker) Recommend(m ranking.Model, users []string) {
 	var userIndexer base.Index
 	// load user index
