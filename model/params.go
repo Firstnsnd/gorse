@@ -28,6 +28,7 @@ import (
 type ParamName string
 
 // Predefined hyper-parameter names
+// 预定义的 hyper-parameter名称
 const (
 	Lr          ParamName = "Lr"          // learning rate
 	Reg         ParamName = "Reg"         // regularization strength
@@ -35,7 +36,7 @@ const (
 	NFactors    ParamName = "NFactors"    // number of factors
 	RandomState ParamName = "RandomState" // random state (seed)
 	InitMean    ParamName = "InitMean"    // mean of gaussian initial parameter 均值高斯的初始参数
-	InitStdDev  ParamName = "InitStdDev"  // standard deviation of gaussian initial parameter
+	InitStdDev  ParamName = "InitStdDev"  // standard deviation of gaussian initial parameter 高斯初始参数的标准偏差
 	Alpha       ParamName = "Alpha"       // weight for negative samples in ALS
 	Similarity  ParamName = "Similarity"
 	UseFeature  ParamName = "UseFeature"

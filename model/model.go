@@ -25,13 +25,13 @@ type Model interface {
 	GetParams() Params
 	GetParamsGrid() ParamsGrid
 	Clear()
-	Invalid() bool
+	Invalid() bool // 模型是否为空
 }
 
 // BaseModel model must be included by every recommendation model. Hyper-parameters,
 // ID sets, random generator and fitting options are managed the BaseModel model.
 // 每个推荐模型必须包含baseModel模型。
-// Hyper-parameters、ID集,随机生成器和选项适配由basemodel管理。
+// Hyper-parameters、ID集,随机生成器和选项适配由BaseModel管理。
 type BaseModel struct {
 	Params    Params               // Hyper-parameters
 	rng       base.RandomGenerator // Random generator
@@ -39,6 +39,7 @@ type BaseModel struct {
 }
 
 // SetParams sets hyper-parameters for the BaseModel model.
+// SetParams 为 BaseModel 模型设置超参数。
 func (model *BaseModel) SetParams(params Params) {
 	model.Params = params
 	model.randState = model.Params.GetInt64(RandomState, 0)

@@ -122,6 +122,7 @@ func (m *Master) GetMeta(ctx context.Context, nodeInfo *protocol.NodeInfo) (*pro
 }
 
 // GetRankingModel returns latest ranking model.
+// 返回最新的排名模型
 func (m *Master) GetRankingModel(context.Context, *protocol.NodeInfo) (*protocol.Model, error) {
 	m.rankingModelMutex.RLock()
 	defer m.rankingModelMutex.RUnlock()
