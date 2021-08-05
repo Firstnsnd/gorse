@@ -378,14 +378,14 @@ func (w *Worker) Recommend(m ranking.Model, users []string) {
 	if _, ok := m.(ranking.MatrixFactorization); ok {
 		userIndexer = m.(ranking.MatrixFactorization).GetUserIndex()
 	}
-	// load item index
+	// load item index 加载物品的索引
 	itemIds := m.GetItemIndex().GetNames()
 	base.Logger().Info("ranking recommendation",
 		zap.Int("n_working_users", len(users)),
 		zap.Int("n_items", len(itemIds)),
 		zap.Int("n_jobs", w.jobs),
 		zap.Int("cache_size", w.cfg.Database.CacheSize))
-	// progress tracker
+	// progress tracker 进度追踪
 	completed := make(chan interface{}, 1000)
 	go func() {
 		defer base.CheckPanic()
@@ -415,11 +415,13 @@ func (w *Worker) Recommend(m ranking.Model, users []string) {
 			userIndex = userIndexer.ToNumber(userId)
 		}
 		// skip inactive users before max recommend period
+		// 在最大的推荐时段跳过不活跃的用户推荐
 		if !w.checkRecommendCacheTimeout(userId) {
 			return nil
 		}
 		// load historical items
 		historyItems, err := loadUserHistoricalItems(w.dataClient, userId)
+		// 物品历史集合
 		historySet := set.NewStringSet(historyItems...)
 		if err != nil {
 			base.Logger().Error("failed to pull user feedback",
@@ -427,14 +429,18 @@ func (w *Worker) Recommend(m ranking.Model, users []string) {
 			return err
 		}
 		// load positive items
+		// 加载正反馈的物品
 		var positiveItemIndices []int
+		// 使用knn
 		if _, ok := m.(*ranking.KNN); ok {
+			// 加载用户喜欢过的物品
 			favoredItems, err := loadUserHistoricalItems(w.dataClient, userId, w.cfg.Database.PositiveFeedbackType...)
 			if err != nil {
 				base.Logger().Error("failed to pull user feedback",
 					zap.String("user_id", userId), zap.Error(err))
 				return err
 			}
+			// 喜欢物品的索引数组
 			for _, itemId := range favoredItems {
 				itemIndex := m.GetItemIndex().ToNumber(itemId)
 				if itemIndex != base.NotId {
@@ -442,13 +448,16 @@ func (w *Worker) Recommend(m ranking.Model, users []string) {
 				}
 			}
 		}
-		// generate recommendation
-		recItems := base.NewTopKStringFilter(w.cfg.Database.CacheSize)
+		// generate recommendation 生成推荐
+		recItems := base.NewTopKStringFilter(w.cfg.Database.CacheSize) // 推荐物品的缓存列表
 		for itemIndex, itemId := range itemIds {
+			// 不在历史项目里
 			if !historySet.Has(itemId) {
 				switch m := m.(type) {
+				// 矩阵分解
 				case ranking.MatrixFactorization:
 					recItems.Push(itemId, m.InternalPredict(userIndex, itemIndex))
+				// 	k最邻近算法
 				case *ranking.KNN:
 					recItems.Push(itemId, m.InternalPredict(positiveItemIndices, itemIndex))
 				default:
@@ -569,6 +578,7 @@ func (w *Worker) checkRecommendCacheTimeout(userId string) bool {
 	return true
 }
 
+// 加载用户的历史推荐物品
 func loadUserHistoricalItems(database data.Database, userId string, feedbackTypes ...string) ([]string, error) {
 	items := make([]string, 0)
 	feedbacks, err := database.GetUserFeedback(userId, feedbackTypes...)

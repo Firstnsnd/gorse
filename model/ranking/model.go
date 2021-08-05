@@ -80,7 +80,7 @@ type MatrixFactorization interface {
 	// 预测：用户(用户Id)给项(item Id)的评级。
 	Predict(userId, itemId string) float32
 	// InternalPredict predicts rating given by a user index and a item index
-	// 内部预：测预测用户给出的评级指数和商品指数
+	// 内部预：输入用户索引和物品缩影返回预测用户给出评级
 	InternalPredict(userIndex, itemIndex int) float32
 	// GetUserIndex returns user index.
 	//

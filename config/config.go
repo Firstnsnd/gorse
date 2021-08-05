@@ -48,8 +48,8 @@ type DatabaseConfig struct {
 	AutoInsertItem       bool     `toml:"auto_insert_item"`        // insert new items while inserting feedback　在插入反馈的同时插入新物品
 	CacheSize            int      `toml:"cache_size"`              // cache size for recommended/popular/latest items　每个缓存列表的长度
 	PositiveFeedbackType []string `toml:"positive_feedback_types"` // positive feedback type 用户喜欢物品
-	ClickFeedbackTypes   []string `toml:"click_feedback_types"`    // feedback types for click event 用户喜欢推荐的项目
-	ReadFeedbackType     string   `toml:"read_feedback_type"`      // feedback type for read event 用户阅读了一个项目。然而,这个用户在他/她心中的真实反馈是永远未知的。
+	ClickFeedbackTypes   []string `toml:"click_feedback_types"`    // feedback types for click event 用户喜欢的推荐物品
+	ReadFeedbackType     string   `toml:"read_feedback_type"`      // feedback type for read event 用户阅读了一个物品。然而,这个用户在他/她心中的真实反馈是永远未知的。
 	PositiveFeedbackTTL  uint     `toml:"positive_feedback_ttl"`   // time-to-live of positive feedbacks　反馈的过期时间
 	ItemTTL              uint     `toml:"item_ttl"`                // item-to-live of items　物品的过期时间
 }

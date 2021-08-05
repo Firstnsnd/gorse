@@ -27,11 +27,12 @@ import (
 	"go.uber.org/zap"
 )
 
+// k邻近算法
 type KNN struct {
 	model.BaseModel
 	similarity string
 	ItemIndex  base.Index
-	Similarity []ConcurrentMap
+	Similarity []ConcurrentMap // 相似
 }
 
 func (knn *KNN) SetParams(params model.Params) {
@@ -72,6 +73,7 @@ func (knn *KNN) Predict(userProfile []string, itemId string) float32 {
 	return knn.InternalPredict(supportIndices, itemIndex)
 }
 
+//
 func (knn *KNN) InternalPredict(userProfile []int, itemIndex int) float32 {
 	sum := float32(0)
 	for _, supportIndex := range userProfile {
@@ -179,6 +181,7 @@ func dot(a, b []int) float32 {
 	return sum
 }
 
+// 相似度
 type ConcurrentMap struct {
 	Map   map[int]float32
 	mutex sync.RWMutex
