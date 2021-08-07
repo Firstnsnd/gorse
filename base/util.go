@@ -42,6 +42,7 @@ func SetDevelopmentLogger() {
 }
 
 // Max finds the maximum in a vector of integers. Panic if the slice is empty.
+// 发现一个向量的中最大整数
 func Max(a ...int) int {
 	if len(a) == 0 {
 		panic("can't get the maximum from empty vec")
@@ -70,6 +71,7 @@ func Min(a ...int) int {
 }
 
 // RangeInt generate a slice [0, ..., n-1].
+// 生成小于n的切片
 func RangeInt(n int) []int {
 	a := make([]int, n)
 	for i := range a {
@@ -79,6 +81,7 @@ func RangeInt(n int) []int {
 }
 
 // NewMatrix32 creates a 2D matrix of 32-bit floats.
+// 创建2维数组
 func NewMatrix32(row, col int) [][]float32 {
 	ret := make([][]float32, row)
 	for i := range ret {

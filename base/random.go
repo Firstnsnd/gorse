@@ -19,17 +19,24 @@ import (
 	"math/rand"
 )
 
+/**
+随机生成器
+**/
+
 // RandomGenerator is the random generator for gorse.
 type RandomGenerator struct {
 	*rand.Rand
 }
 
 // NewRandomGenerator creates a RandomGenerator.
+// 创建一个随机生成器
 func NewRandomGenerator(seed int64) RandomGenerator {
+	// 新源返回一个新的伪随机源的给定值
 	return RandomGenerator{rand.New(rand.NewSource(int64(seed)))}
 }
 
 // UniformVector makes a vec filled with uniform random floats,
+// 创建一个vec填充均匀分布的随机浮点数
 func (rng RandomGenerator) UniformVector(size int, low, high float32) []float32 {
 	ret := make([]float32, size)
 	scale := high - low
@@ -40,6 +47,7 @@ func (rng RandomGenerator) UniformVector(size int, low, high float32) []float32 
 }
 
 // NewNormalVector makes a vec filled with normal random floats.
+// 创建一个vec填充正态分布随机浮点数
 func (rng RandomGenerator) NewNormalVector(size int, mean, stdDev float32) []float32 {
 	ret := make([]float32, size)
 	for i := 0; i < len(ret); i++ {
@@ -49,6 +57,7 @@ func (rng RandomGenerator) NewNormalVector(size int, mean, stdDev float32) []flo
 }
 
 // NormalMatrix makes a matrix filled with normal random floats.
+// 矩阵正态分布
 func (rng RandomGenerator) NormalMatrix(row, col int, mean, stdDev float32) [][]float32 {
 	ret := make([][]float32, row)
 	for i := range ret {
@@ -58,6 +67,7 @@ func (rng RandomGenerator) NormalMatrix(row, col int, mean, stdDev float32) [][]
 }
 
 // UniformMatrix makes a matrix filled with uniform random floats.
+// 矩阵均匀分布
 func (rng RandomGenerator) UniformMatrix(row, col int, low, high float32) [][]float32 {
 	ret := make([][]float32, row)
 	for i := range ret {
@@ -67,6 +77,7 @@ func (rng RandomGenerator) UniformMatrix(row, col int, low, high float32) [][]fl
 }
 
 // NormalVector64 makes a vec filled with normal random floats.
+// 矩阵正态分布
 func (rng RandomGenerator) NormalVector64(size int, mean, stdDev float64) []float64 {
 	ret := make([]float64, size)
 	for i := 0; i < len(ret); i++ {
@@ -85,8 +96,10 @@ func (rng RandomGenerator) NormalMatrix64(row, col int, mean, stdDev float64) []
 }
 
 // Sample n values between low and high, but not in exclude.
+// 在low和high的开区间的n个值
 func (rng RandomGenerator) Sample(low, high, n int, exclude ...*iset.Set) []int {
 	intervalLength := high - low
+	// 合并多个集合，它返回一个新组的所有元素出现在传递的所有集合中。
 	excludeSet := iset.Union(exclude...)
 	sampled := make([]int, 0, n)
 	if n >= intervalLength-excludeSet.Size() {

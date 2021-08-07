@@ -29,9 +29,11 @@ import (
 */
 
 // Metric is used by evaluators in personalized ranking tasks.
+// 在个性化任务中被评估(evaluators)调用
 type Metric func(targetSet *iset.Set, rankList []int) float32
 
 // Evaluate evaluates a model in top-n tasks.
+// Evaluate: 在头n个任务评估评估模型。
 func Evaluate(estimator model.Model, testSet, trainSet *DataSet, topK, numCandidates, nJobs int, scorers ...Metric) []float32 {
 	partSum := make([][]float32, nJobs)
 	partCount := make([]float32, nJobs)
@@ -40,6 +42,7 @@ func Evaluate(estimator model.Model, testSet, trainSet *DataSet, topK, numCandid
 	}
 	//rng := NewRandomGenerator(0)
 	// For all UserFeedback
+	//
 	negatives := testSet.NegativeSample(trainSet, numCandidates)
 	_ = base.Parallel(testSet.UserCount(), nJobs, func(workerId, userIndex int) error {
 		// Find top-n ItemFeedback in test set

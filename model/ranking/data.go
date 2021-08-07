@@ -145,6 +145,7 @@ func (dataset *DataSet) ItemCount() int {
 	return dataset.ItemIndex.Len()
 }
 
+// 创建两层切片
 func createSliceOfSlice(n int) [][]int {
 	x := make([][]int, n)
 	for i := range x {
@@ -153,8 +154,10 @@ func createSliceOfSlice(n int) [][]int {
 	return x
 }
 
+// 负样本
 func (dataset *DataSet) NegativeSample(excludeSet *DataSet, numCandidates int) [][]int {
 	if len(dataset.Negatives) == 0 {
+		//
 		rng := base.NewRandomGenerator(0)
 		dataset.Negatives = make([][]int, dataset.UserCount())
 		for userIndex := 0; userIndex < dataset.UserCount(); userIndex++ {
@@ -169,6 +172,9 @@ func (dataset *DataSet) NegativeSample(excludeSet *DataSet, numCandidates int) [
 // Split dataset by user-leave-one-out method. The argument `numTestUsers` determines the number of users in the test
 // set. If numTestUsers is equal or greater than the number of total users or numTestUsers <= 0, all users are presented
 // in the test set.
+// user-leave-one-out方法的分割数据集。
+// `numTestUsers`定义了在测试数据集中的用户数。
+// 如果numTestUsers等于(或大于)总用户，或numTestUsers<= 0, 即所有的用户都在测试集中。
 func (dataset *DataSet) Split(numTestUsers int, seed int64) (*DataSet, *DataSet) {
 	trainSet, testSet := new(DataSet), new(DataSet)
 	trainSet.NumItemLabels, testSet.NumItemLabels = dataset.NumItemLabels, dataset.NumItemLabels
@@ -235,6 +241,9 @@ func (dataset *DataSet) GetIndex(i int) (int, int) {
 	return dataset.FeedbackUsers[i], dataset.FeedbackItems[i]
 }
 
+/***
+加载数据
+***/
 // LoadDataFromCSV loads Data from a CSV file. The CSV file should be:
 //   [optional header]
 //   <userId 1> <sep> <itemId 1> <sep> <rating 1> <sep> <extras>

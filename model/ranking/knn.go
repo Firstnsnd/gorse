@@ -92,6 +92,7 @@ func NewKNN(params model.Params) *KNN {
 	return knn
 }
 
+// 拟合
 func (knn *KNN) Fit(trainSet, valSet *DataSet, config *FitConfig) Score {
 	config = config.LoadDefaultIfNil()
 	knn.ItemIndex = trainSet.ItemIndex
@@ -133,12 +134,14 @@ func (knn *KNN) Fit(trainSet, valSet *DataSet, config *FitConfig) Score {
 			if neighborId < itemIndex {
 				var similarity float32
 				switch knn.similarity {
+				// 余弦相似度
 				case model.SimilarityCosine:
 					similarity = dot(trainSet.ItemFeedback[itemIndex], trainSet.ItemFeedback[neighborId])
 					if similarity != 0 {
 						similarity /= math32.Sqrt(float32(len(trainSet.ItemFeedback[itemIndex])))
 						similarity /= math32.Sqrt(float32(len(trainSet.ItemFeedback[neighborId])))
 					}
+					// 相似点
 				case model.SimilarityDot:
 					similarity = dot(trainSet.ItemFeedback[itemIndex], trainSet.ItemFeedback[neighborId])
 				default:
@@ -181,7 +184,7 @@ func dot(a, b []int) float32 {
 	return sum
 }
 
-// 相似度
+// 存储与外部索引的相似度
 type ConcurrentMap struct {
 	Map   map[int]float32
 	mutex sync.RWMutex
