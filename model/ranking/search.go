@@ -145,12 +145,12 @@ type ModelSearcher struct {
 	numEpochs int
 	numTrials int
 	numJobs   int
-	// results
+	// 拟合的results
 	bestMutex      sync.Mutex
-	bestModelName  string
-	bestModel      Model
-	bestScore      Score
-	bestSimilarity string
+	bestModelName  string // 最佳模型名
+	bestModel      Model // 最佳模型
+	bestScore      Score // 最佳分数(??)
+	bestSimilarity string // 最好的相似性
 }
 
 // NewModelSearcher creates a thread-safe personal ranking model searcher.

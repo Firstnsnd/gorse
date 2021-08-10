@@ -37,6 +37,7 @@ type Score struct {
 	Recall    float32
 }
 
+// 拟合配置
 type FitConfig struct {
 	Jobs       int
 	Verbose    int
@@ -68,22 +69,24 @@ func (config *FitConfig) LoadDefaultIfNil() *FitConfig {
 type Model interface {
 	model.Model
 	// Fit a model with a train set and parameters.
-	// 适合与训练模型和参数设置。
+	// 拟合 一个模型和参数
 	Fit(trainSet *DataSet, validateSet *DataSet, config *FitConfig) Score
 	// GetItemIndex returns item index.
+	// GetItemIndex 返回物品的索引
 	GetItemIndex() base.Index
 }
 
+// 矩阵分解
 type MatrixFactorization interface {
 	Model
 	// Predict the rating given by a user (userId) to a item (itemId).
-	// 预测：用户(用户Id)给项(item Id)的评级。
+	// 预测：用户(用户Id)给物品(item Id)的评级。
 	Predict(userId, itemId string) float32
 	// InternalPredict predicts rating given by a user index and a item index
 	// 内部预：输入用户索引和物品缩影返回预测用户给出评级
 	InternalPredict(userIndex, itemIndex int) float32
 	// GetUserIndex returns user index.
-	//
+	// 返回用户的缩影
 	GetUserIndex() base.Index
 }
 
@@ -106,6 +109,7 @@ func (model *BaseMatrixFactorization) GetItemIndex() base.Index {
 	return model.ItemIndex
 }
 
+// 返回一个新的模型
 func NewModel(name string, params model.Params) (Model, error) {
 	switch name {
 	case "als":

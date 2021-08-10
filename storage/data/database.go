@@ -65,6 +65,7 @@ type Feedback struct {
 }
 
 // Measurement stores a statistical value.
+// 存储一个统计值
 type Measurement struct {
 	Name      string
 	Timestamp time.Time
