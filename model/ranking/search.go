@@ -25,6 +25,7 @@ import (
 )
 
 // ParamsSearchResult contains the return of grid search.
+// 包含网格搜索的返回。
 type ParamsSearchResult struct {
 	BestModel  Model
 	BestScore  Score
@@ -52,6 +53,7 @@ func (r *ParamsSearchResult) AddScore(params model.Params, score Score) {
 }
 
 // GridSearchCV finds the best parameters for a model.
+// 发现一个模型的最佳参数
 func GridSearchCV(estimator Model, trainSet *DataSet, testSet *DataSet, paramGrid model.ParamsGrid,
 	seed int64, fitConfig *FitConfig) ParamsSearchResult {
 	// Retrieve parameter names and length
@@ -173,6 +175,7 @@ func (searcher *ModelSearcher) GetBestModel() (string, Model, Score) {
 }
 
 // GetBestSimilarity returns the optimal similarity for neighborhood recommendations.
+// 返回社区推荐最优相似
 func (searcher *ModelSearcher) GetBestSimilarity() string {
 	searcher.bestMutex.Lock()
 	defer searcher.bestMutex.Unlock()
