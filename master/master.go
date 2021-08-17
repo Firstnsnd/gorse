@@ -41,6 +41,9 @@ import (
 // Master is the master node.
 // 模型训练、非个性化物品推荐(流行/最新/类似)、配置管理、会员管理
 // 系统监控、数据导入导出和系统状态检查。
+// 负责用所有的物料数据和用户数据以及反馈数据来拆分训练集和测试集，
+// 然后训练模型，模型分为两大类：排序和点击预测；训练完毕后通过模型搜索来获取最优模型和参数。
+// 同时非个性化推荐也是master节点完成的。推荐结果写入缓存，缓存是用list来维护的，会定期过滤过期的数据
 type Master struct {
 	protocol.UnimplementedMasterServer
 	server.RestServer
@@ -129,6 +132,7 @@ func NewMaster(cfg *config.Config) *Master {
 func (m *Master) Serve() {
 
 	// load local cached model
+	// 通过缓存的数据初始化模型
 	var err error
 	m.localCache, err = LoadLocalCache(filepath.Join(os.TempDir(), "gorse-master"))
 	if err != nil {
@@ -166,6 +170,7 @@ func (m *Master) Serve() {
 	}
 
 	// connect data database
+	// 初始化缓存和持久化存储（redis、mysql，mon）
 	m.DataClient, err = data.Open(m.GorseConfig.Database.DataStore)
 	if err != nil {
 		base.Logger().Fatal("failed to connect data database", zap.Error(err))
@@ -182,22 +187,28 @@ func (m *Master) Serve() {
 	}
 
 	// download ranking dataset
+	//加载排序用的数据集
 	err = m.loadRankingDataset()
 	if err != nil {
 		base.Logger().Error("failed to load ranking dataset", zap.Error(err))
 	}
 
 	// download click dataset
+	//加载点击预测数据集
 	err = m.loadClickDataset()
 	if err != nil {
 		base.Logger().Error("failed to load click dataset", zap.Error(err))
 	}
 
+	//启动一个httpserver主要用户数据的批量导入
 	go m.StartHttpServer()
+	//进入训练模型的大循环
 	go m.FitLoop()
 	base.Logger().Info("start model fit", zap.Int("period", m.GorseConfig.Recommend.FitPeriod))
+	//进入最佳模型参数筛选大循环
 	go m.SearchLoop()
 	base.Logger().Info("start model searcher", zap.Int("period", m.GorseConfig.Recommend.SearchPeriod))
+	//进行全局非个性化推荐，存入缓存
 	go m.AnalyzeLoop()
 	base.Logger().Info("start analyze")
 
@@ -211,6 +222,7 @@ func (m *Master) Serve() {
 	}
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
+	// 启动grpc服务
 	protocol.RegisterMasterServer(grpcServer, m)
 	if err = grpcServer.Serve(lis); err != nil {
 		base.Logger().Fatal("failed to start rpc server", zap.Error(err))
@@ -229,6 +241,7 @@ func (m *Master) FitLoop() {
 		lastNumClickFeedback   int
 		err                    error
 	)
+	// 1，加载数据集
 	go func() {
 		m.insertedChan <- true
 		for {
@@ -257,7 +270,7 @@ func (m *Master) FitLoop() {
 			continue
 		}
 
-		// fit ranking model　拟合排名模型
+		// fit ranking model　拟合排名模型、计算评分、存储
 		lastNumRankingUsers, lastNumRankingItems, lastNumRankingFeedback, err =
 			m.fitRankingModelAndNonPersonalized(lastNumRankingUsers, lastNumRankingItems, lastNumRankingFeedback)
 		if err != nil {
@@ -265,7 +278,7 @@ func (m *Master) FitLoop() {
 			continue
 		}
 
-		// fit click model
+		// fit click model 训练点击预测模型、计算评分、存储
 		lastNumClickUsers, lastNumClickItems, lastNumClickFeedback, err =
 			m.fitClickModel(lastNumClickUsers, lastNumClickItems, lastNumClickFeedback)
 		if err != nil {
@@ -291,6 +304,7 @@ func (m *Master) SearchLoop() {
 		err                     error
 	)
 	for {
+		//  1，排序模型
 		lastNumRankingUsers, lastNumRankingItems, lastNumRankingFeedbacks, err =
 			m.searchRankingModel(lastNumRankingUsers, lastNumRankingItems, lastNumRankingFeedbacks)
 		if err != nil {
@@ -298,6 +312,7 @@ func (m *Master) SearchLoop() {
 			time.Sleep(time.Minute)
 			continue
 		}
+		// 2，点击预测模型
 		lastNumClickUsers, lastNumClickItems, lastNumClickFeedbacks, err =
 			m.searchClickModel(lastNumClickUsers, lastNumClickItems, lastNumClickFeedbacks)
 		if err != nil {

@@ -35,14 +35,16 @@ var (
 )
 
 // Item stores meta data about item.
+// 物料的元数据
 type Item struct {
 	ItemId    string
-	Timestamp time.Time
-	Labels    []string
+	Timestamp time.Time // 断物料是否过期
+	Labels    []string  // 物料的特征
 	Comment   string
 }
 
 // User stores meta data about user.
+// 用户的元数据
 type User struct {
 	UserId    string
 	Labels    []string
@@ -51,6 +53,7 @@ type User struct {
 }
 
 // FeedbackKey identifies feedback.
+// 反馈
 type FeedbackKey struct {
 	FeedbackType string
 	UserId       string

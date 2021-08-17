@@ -47,9 +47,11 @@ type RestServer struct {
 // StartHttpServer starts the REST-ful API server.
 func (s *RestServer) StartHttpServer() {
 	// register restful APIs
+	// 1，web服务
 	s.CreateWebService()
 	restful.DefaultContainer.Add(s.WebService)
 	// register swagger UI
+	// 2，接口文档
 	specConfig := restfulspec.Config{
 		WebServices: restful.RegisteredWebServices(),
 		APIPath:     "/apidocs.json",
@@ -58,6 +60,7 @@ func (s *RestServer) StartHttpServer() {
 	swaggerFile = specConfig.APIPath
 	http.HandleFunc(apiDocsPath, handler)
 	// register prometheus
+	//  3，监控
 	http.Handle("/metrics", promhttp.Handler())
 
 	base.Logger().Info("start http server",

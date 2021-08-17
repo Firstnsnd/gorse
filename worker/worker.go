@@ -43,6 +43,7 @@ import (
 )
 
 // Worker manages states of a worker node.
+// 通过grpc从master拉取模型数据，还有用户列表，定时分批对每一个用户来计算推荐数据，存入缓存。
 // 离线推荐:所有项目中收集前 n 个项目并将它们保存到缓存中。
 // 添加了最新项目以解决推荐系统中的冷启动问题。当项目标签存在时，
 // CTR 预测模型被启用，反之亦然。离线推荐的过程取决于是否启用了CTR模型。
@@ -118,7 +119,7 @@ func (w *Worker) Sync() {
 	for {
 		var meta *protocol.Meta
 		var err error
-		// master节点的信息
+		// master节点的元数据
 		if meta, err = w.masterClient.GetMeta(context.Background(),
 			&protocol.NodeInfo{
 				NodeType: protocol.NodeType_WorkerNode,
@@ -136,7 +137,7 @@ func (w *Worker) Sync() {
 			goto sleep
 		}
 
-		// connect to data store，加载数据
+		// connect to data store，  2，持久化存储里的数据
 		if w.dataPath != w.cfg.Database.DataStore {
 			base.Logger().Info("connect data store", zap.String("database", w.cfg.Database.DataStore))
 			if w.dataClient, err = data.Open(w.cfg.Database.DataStore); err != nil {
@@ -146,7 +147,7 @@ func (w *Worker) Sync() {
 			w.dataPath = w.cfg.Database.DataStore
 		}
 
-		// connect to cache store，加载缓存
+		// connect to cache store，  3，cache里的数据
 		if w.cachePath != w.cfg.Database.CacheStore {
 			base.Logger().Info("connect cache store", zap.String("database", w.cfg.Database.CacheStore))
 			if w.cacheClient, err = cache.Open(w.cfg.Database.CacheStore); err != nil {
@@ -194,7 +195,7 @@ func (w *Worker) Sync() {
 }
 
 // Pull user index and ranking model from master.
-// 从master拉取用户索引和排名模型
+// 从master拉取用户数据、排序模型、点击预测模型
 func (w *Worker) Pull() {
 	defer base.CheckPanic()
 	for range w.syncedChan {
@@ -203,6 +204,7 @@ func (w *Worker) Pull() {
 		// pull user index
 		if w.latestUserIndexVersion != w.currentUserIndexVersion {
 			base.Logger().Info("start pull user index")
+			//用户数据
 			if userIndexResponse, err := w.masterClient.GetUserIndex(context.Background(),
 				&protocol.NodeInfo{NodeType: protocol.NodeType_WorkerNode, NodeName: w.workerName},
 				grpc.MaxCallRecvMsgSize(10e8)); err != nil {
@@ -225,6 +227,7 @@ func (w *Worker) Pull() {
 		}
 
 		// pull ranking model
+		// 排序模型
 		if w.latestRankingModelVersion != w.currentRankingModelVersion {
 			base.Logger().Info("start pull ranking model")
 			if rankingResponse, err := w.masterClient.GetRankingModel(context.Background(),
@@ -247,6 +250,7 @@ func (w *Worker) Pull() {
 		}
 
 		// pull click model
+		// 点击预测模型
 		if w.latestClickModelVersion != w.currentClickModelVersion {
 			base.Logger().Info("start pull click model")
 			if clickResponse, err := w.masterClient.GetClickModel(context.Background(),
@@ -294,6 +298,7 @@ func (w *Worker) ServeMetrics() {
 func (w *Worker) Serve() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	// open local store
+	// 1，加载上次结果的缓存数据
 	state, err := LoadLocalCache(filepath.Join(os.TempDir(), "gorse-worker"))
 	if err != nil {
 		base.Logger().Error("failed to load persist state", zap.Error(err),
@@ -312,14 +317,21 @@ func (w *Worker) Serve() {
 		zap.String("worker_name", w.workerName))
 
 	// connect to master
+	// 2，获取master的grpc连接
 	conn, err := grpc.Dial(fmt.Sprintf("%v:%v", w.masterHost, w.masterPort), grpc.WithInsecure())
 	if err != nil {
 		base.Logger().Fatal("failed to connect master", zap.Error(err))
 	}
 	w.masterClient = protocol.NewMasterClient(conn)
 
+	// 3，同步数据
 	go w.Sync()
+	// 4，拉取用户和模型相关的数据,主要包括三个部分：
+	//    用户数据、
+	//    排序模型、
+	//    点击预测模型
 	go w.Pull()
+	// 系统监控
 	go w.ServeMetrics()
 
 	loop := func() {
@@ -336,6 +348,7 @@ func (w *Worker) Serve() {
 			}
 
 			// recommendation
+			// 个性化推荐
 			if w.rankingModel != nil {
 				w.Recommend(w.rankingModel, workingUsers)
 			} else {
@@ -420,6 +433,7 @@ func (w *Worker) Recommend(m ranking.Model, users []string) {
 			return nil
 		}
 		// load historical items
+		//  2，加载用户推荐的历史数据
 		historyItems, err := loadUserHistoricalItems(w.dataClient, userId)
 		// 物品历史集合
 		historySet := set.NewStringSet(historyItems...)
@@ -433,7 +447,7 @@ func (w *Worker) Recommend(m ranking.Model, users []string) {
 		var positiveItemIndices []int
 		// 使用knn
 		if _, ok := m.(*ranking.KNN); ok {
-			// 加载用户喜欢过的物品
+			//  3，加载用户正反馈的数据
 			favoredItems, err := loadUserHistoricalItems(w.dataClient, userId, w.cfg.Database.PositiveFeedbackType...)
 			if err != nil {
 				base.Logger().Error("failed to pull user feedback",
@@ -467,10 +481,12 @@ func (w *Worker) Recommend(m ranking.Model, users []string) {
 			}
 		}
 		// save result
+		// 4，获取候选物料和评分
 		candidateItems, candidateScores := recItems.PopAll()
 		// insert cold-start items
 		if w.cfg.Recommend.ExploreLatestNum > 0 {
 			candidateSet := strset.New(candidateItems...)
+			//   5，加载最新数据
 			latestItems, err := w.cacheClient.GetScores(cache.LatestItems, "", 0, w.cfg.Recommend.ExploreLatestNum-1)
 			if err != nil {
 				return err
@@ -482,6 +498,7 @@ func (w *Worker) Recommend(m ranking.Model, users []string) {
 			}
 		}
 		// rank items in result by click-through-rate
+		// 6，通过点击预测模型排序
 		var result []cache.ScoredItem
 		if w.clickModel != nil {
 			result, err = w.rankByClickTroughRate(userId, candidateItems)
@@ -489,8 +506,10 @@ func (w *Worker) Recommend(m ranking.Model, users []string) {
 				return err
 			}
 		} else {
+			// 7，随机排序
 			result = w.randomInsertLatestItem(candidateItems, candidateScores)
 		}
+		//   8，缓存数据
 		if err = w.cacheClient.SetScores(cache.RecommendItems, userId, result); err != nil {
 			base.Logger().Error("failed to cache recommendation", zap.Error(err))
 			return err

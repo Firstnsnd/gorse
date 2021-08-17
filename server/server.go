@@ -35,6 +35,8 @@ import (
 
 // Server manages states of a server node.
 // RESTful API 和在线实时推荐
+// swagger文档，前端可以通过接口从缓存中获取当前用户的推荐数据，
+// 或者对推荐的数据做出反馈。
 type Server struct {
 	RestServer
 	cachePath    string
@@ -94,7 +96,9 @@ func (s *Server) Serve() {
 	}
 	s.masterClient = protocol.NewMasterClient(conn)
 
+	//3，同步数据主要是元数据
 	go s.Sync()
+	//4，提供http服务
 	s.StartHttpServer()
 }
 

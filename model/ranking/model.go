@@ -196,6 +196,10 @@ func DecodeModel(name string, buf []byte) (Model, error) {
 //	 NEpochs	- The number of iteration of the SGD procedure. Default is 100.
 //	 InitMean	- The mean of initial random latent factors. Default is 0.
 //	 InitStdDev	- The standard deviation of initial random latent factors. Default is 0.001.
+// 基于贝叶斯后验优化的个性化排序算法
+//   BPR算法将用户对物品的评分（显示反馈“1”，隐式反馈“0”）处理为一个pair对的集合<i,j>，其中i为评分为1的物品，
+//   j为评分为0的物品。假设某用户有M个“1”的评分，N个“0”的评分，则该用户共有M*N个pair对。
+//   这样数据集就由三元组 <u,i,j>表示，该三元组的物理含义为：相对于物品“j”，用户“u”更喜欢物品“i”。
 type BPR struct {
 	BaseMatrixFactorization
 	// Model parameters
@@ -428,6 +432,10 @@ func (bpr *BPR) Init(trainSet *DataSet) {
 //   InitMean   - The mean of initial latent factors. Default is 0.
 //   InitStdDev - The standard deviation of initial latent factors. Default is 0.1.
 //   Reg        - The strength of regularization.
+//Alternative -Least-Squares
+// 交替最小二乘法
+//   它通过最小化误差的平方和寻找数据的最佳函数匹配。利用最小二乘法可以简便地求得未知的数据，
+//   并使得这些求得的数据与实际数据之间误差的平方和为最小。最小二乘法可用于曲线拟合。
 type ALS struct {
 	BaseMatrixFactorization
 	// Model parameters
@@ -660,6 +668,8 @@ func (als *ALS) Init(trainSet *DataSet) {
 	als.BaseMatrixFactorization.Init(trainSet)
 }
 
+// Cyclic Coordinate Descent (CCD)
+// 是一个启发式的迭代搜索算法
 type CCD struct {
 	BaseMatrixFactorization
 	// Model parameters

@@ -27,7 +27,9 @@ import (
 	"go.uber.org/zap"
 )
 
-// k邻近算法
+// k-Nearest Neighbor K最近邻分类算法
+//    如果一个样本在特征空间中的k个最相似(即特征空间中最邻近)的样本中的
+//大多数属于某一个类别，则该样本也属于这个类别
 type KNN struct {
 	model.BaseModel
 	similarity string
