@@ -238,9 +238,12 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.PathParameter("item-id", "identifier of the item").DataType("string")).
 		Writes([]string{}))
 
-	/* Interaction with intermediate result */
+	/* Interaction with intermediate result
+	   中间结果
+	*/
 
 	// Get collaborative filtering recommendation by user id
+	//
 	ws.Route(ws.GET("/intermediate/recommend/{user-id}").To(s.getCollaborative).
 		Doc("get the collaborative filtering recommendation for a user").
 		Metadata(restfulspec.KeyOpenAPITags, []string{"intermediate"}).
@@ -291,6 +294,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.QueryParameter("n", "number of returned items").DataType("int")).
 		Param(ws.QueryParameter("offset", "offset of the list").DataType("int")).
 		Writes([]string{}))
+	// 最终推荐结果
 	ws.Route(ws.GET("/recommend/{user-id}").To(s.getRecommend).
 		Doc("Get recommendation for user.").
 		Metadata(restfulspec.KeyOpenAPITags, []string{"recommendation"}).
@@ -444,6 +448,7 @@ func (s *RestServer) getCollaborative(request *restful.Request, response *restfu
 	}
 	// Get user id
 	userId := request.PathParameter("user-id")
+	// 从数据库缓存的推荐项目(从redis中获取前缀为collaborative_items的推荐列表)
 	s.getList(cache.RecommendItems, userId, request, response)
 }
 
@@ -451,6 +456,9 @@ func (s *RestServer) getCollaborative(request *restful.Request, response *restfu
 // 1. If there are recommendations in cache, return cached recommendations.
 // 2. If there are historical interactions of the users, return similar items.
 // 3. Otherwise, return fallback recommendation (popular/latest).
+// 1. 如果在缓存中有没失效的推荐结果,返回缓存的推荐结果。
+// 2。如果用户有交互操作的历史记录，返回用户交互过的物料的类似物料
+//
 func (s *RestServer) Recommend(userId string, n int) ([]string, error) {
 	var err error
 	var knnTime, fallbackTime, loadArchReadTime, removeReadTime time.Duration
@@ -601,6 +609,7 @@ func (s *RestServer) getRecommend(request *restful.Request, response *restful.Re
 		return
 	}
 	// write back
+	// 插入反馈结果
 	if writeBackFeedback != "" {
 		for _, itemId := range results {
 			// insert to data store
